@@ -3,12 +3,11 @@ cycler==0.12.1
 fonttools==4.58.4
 kiwisolver==1.4.8
 matplotlib==3.10.3
-numpy==1.26.4
+numpy==2.3.1
 packaging==25.0
 pillow==11.2.1
 pyparsing==3.2.3
-PyQt5==5.15.11
-PyQt5-Qt5==5.15.17
-PyQt5_sip==12.17.0
+PyQt5
+PyQt5_sip
 python-dateutil==2.9.0.post0
 six==1.17.0

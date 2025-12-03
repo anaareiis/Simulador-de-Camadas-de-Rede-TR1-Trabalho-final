@@ -149,7 +149,7 @@ class ReceptorGUI(ttk.Frame):
         # Gráfico dos bits após demodulação (Camada Física - banda base).
         self.ax_post, self.canvas_post = self.create_plot_tab("Bits RX")
         # Gráfico da constelação 8-QAM recebida (para análise de ruído/interferência).
-        self.ax_const_rx, self.canvas_const_rx = self.create_plot_tab("Constelação 8-QAM (RX)", figsize=(8, 6))
+        self.ax_const_rx, self.canvas_const_rx = self.create_plot_tab("Constelação 16-QAM (RX)", figsize=(8, 6))
 
     def create_plot_tab(self, name, figsize=(6, 3)):
         """
@@ -234,7 +234,7 @@ class ReceptorGUI(ttk.Frame):
         ax.set_ylabel("Nível Lógico")
         
         # Janela do eixo X limitada para visualização detalhada de poucos bits.
-        window_duration = data['t'][-1]
+        window_duration = 0.05
         ax.set_xlim(0, min(window_duration, data['t'][-1] if len(data['t']) > 0 else 1))
         
         # Ajusta eixo Y para acomodar todos os níveis, adicionando margem visual.
@@ -255,18 +255,44 @@ class ReceptorGUI(ttk.Frame):
         """
         ax, canvas = self.ax_const_rx, self.canvas_const_rx
         points = plot_data['points']
-        self.clear_plot_ax(ax, canvas, "Constelação 8-QAM Recebida (com Ruído)")
-        real = [p.real for p in points]  # Eixo I (em fase)
-        imag = [p.imag for p in points]  # Eixo Q (quadratura)
+
+        # Verifique o tipo de modulação para definir título apropriado
+        modulation_type = plot_data.get('modulation', '8-QAM')
+    
+        if modulation_type == '16-QAM':
+            title = "Constelação 16-QAM Recebida (com Ruído)"
+        elif modulation_type == 'QPSK':
+            title = "Constelação QPSK Recebida (com Ruído)"
+        else:
+            title = "Constelação 8-QAM Recebida (com Ruído)"
+        
+        self.clear_plot_ax(ax, canvas, title)
+        
+        real = [p.real for p in points]
+        imag = [p.imag for p in points]
         ax.scatter(real, imag, color='purple', s=40, alpha=0.8, edgecolors='black', linewidths=0.5)
         
-        # Eixos centrais para referência do plano I/Q.
+        # Eixos centrais
         ax.axhline(0, color='gray', lw=0.5)
         ax.axvline(0, color='gray', lw=0.5)
         ax.set_xlabel("Em Fase (I)")
         ax.set_ylabel("Quadratura (Q)")
         
-        # Ajuste automático dos limites dos eixos, garantindo exibição de todos pontos e o centro.
+        # Adicionar pontos de referência da constelação ideal
+        if modulation_type == 'QPSK':
+            # Pontos de referência do QPSK
+            qpsk_ref_points = [
+                1/np.sqrt(2) + 1j/np.sqrt(2),   # 00 (45°)
+                -1/np.sqrt(2) + 1j/np.sqrt(2),  # 01 (135°)
+                -1/np.sqrt(2) - 1j/np.sqrt(2),  # 10 (225°)
+                1/np.sqrt(2) - 1j/np.sqrt(2)    # 11 (315°)
+            ]
+            real_ref = [p.real for p in qpsk_ref_points]
+            imag_ref = [p.imag for p in qpsk_ref_points]
+            ax.scatter(real_ref, imag_ref, color='red', s=80, alpha=0.3, marker='x', label='Ideal')
+            ax.legend()
+        
+        # Ajuste automático dos limites
         all_coords = real + imag
         if all_coords:
             max_abs_val = max(abs(val) for val in all_coords)
@@ -276,7 +302,8 @@ class ReceptorGUI(ttk.Frame):
         else:
             ax.set_xlim(-1.5, 1.5)
             ax.set_ylim(-1.5, 1.5)
-        ax.set_aspect('equal', 'box')  # Escala igual para ambos os eixos.
+        
+        ax.set_aspect('equal', 'box')
         canvas.draw()
 
     def process_queue(self):
@@ -338,6 +365,15 @@ class ReceptorGUI(ttk.Frame):
             # Exibe valores binários do CRC calculado e recebido.
             details_text = f"Calculado: 0b{calc:032b}\nRecebido:  0b{recv:032b}"
             self.detection_details_var.set(details_text)
+        elif method == "Checksum 16-bit":  # Checksum
+            self.detection_method_var.set("Status Checksum:")
+            self.detection_status_var.set(status)
+            self.detection_status_label.config(foreground=color)
+            calc = data.get('calc')
+            recv = data.get('recv')
+            # Exibe valores hexadecimais do checksum (mais legível)
+            details_text = f"Calculado: 0x{calc:04X} ({calc:016b})\nRecebido:  0x{recv:04X} ({recv:016b})"
+            self.detection_details_var.set(details_text)    
 
     def clear_all_for_new_connection(self, address):
         """
@@ -364,7 +400,7 @@ class ReceptorGUI(ttk.Frame):
         for ax, canvas, title in [
             (self.ax_pre, self.canvas_pre, "Sinal RX"),
             (self.ax_post, self.canvas_post, "Bits RX"),
-            (self.ax_const_rx, self.canvas_const_rx, "Constelação 8-QAM (RX)")
+            (self.ax_const_rx, self.canvas_const_rx, "Constelação 16-QAM (RX)")
         ]:
             self.clear_plot_ax(ax, canvas, title)
 

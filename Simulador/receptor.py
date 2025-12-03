@@ -166,10 +166,16 @@ def run_receiver(update_callback):
                     'config': config
                 }})
 
-                # Atualiza GUI com gráfico da constelação recebida (apenas para 8-QAM).
+                # Atualiza GUI com gráfico da constelação recebida (para QPSK, 8-QAM e 16-QAM).
                 if config['mod_portadora_type'] == '8-QAM' and received_qam_points:
                     update_callback({'type': 'plot', 'tab': 'constellation_rx', 'data': {'points': received_qam_points}})
-                    logger.info("Constelação recebida com ruído enviada para plotagem.")
+                    logger.info("Constelação 8-QAM recebida com ruído enviada para plotagem.")
+                elif config['mod_portadora_type'] == '16-QAM' and received_qam_points:
+                    update_callback({'type': 'plot', 'tab': 'constellation_rx', 'data': {'points': received_qam_points}})
+                    logger.info("Constelação 16-QAM recebida com ruído enviada para plotagem.")
+                elif config['mod_portadora_type'] == 'QPSK' and received_qam_points:  
+                    update_callback({'type': 'plot', 'tab': 'constellation_rx', 'data': {'points': received_qam_points}})
+                    logger.info("Constelação QPSK recebida com ruído enviada para plotagem.")
 
                 # --- Camada de Enlace: Desenquadramento ---
                 logger.info(f"Iniciando desenquadramento com método '{config['enquadramento_type']}'")
@@ -235,6 +241,28 @@ def run_receiver(update_callback):
                         'method': 'Paridade Par',
                         'status': "OK" if detecao_ok else f"INVÁLIDO ({erros} erros)"
                     }})
+
+                elif tipo_erro == "Checksum":  # Verificação de Checksum
+                    if len(data_after_correction) < 16:
+                        raise ValueError("Dados corrigidos menores que tamanho do checksum (16 bits)")
+                    
+                    # Método simples para debug
+                    is_valid, checksum_calc, checksum_recv = error_detector.verify_checksum_simple(
+                        data_after_correction, checksum_bits=16
+                    )
+                    dados_decodificados = data_after_correction[:-16]
+                    detecao_ok = is_valid
+                    
+                    logger.info(f"Checksum calculado: {checksum_calc} (0x{int(checksum_calc, 2):04X})")
+                    logger.info(f"Checksum recebido:  {checksum_recv} (0x{int(checksum_recv, 2):04X})")
+                    logger.info(f"Validação Checksum: {'OK' if detecao_ok else 'INVÁLIDO'}")
+                    
+                    update_callback({'type': 'detection_result', 'data': {
+                        'method': 'Checksum 16-bit',
+                        'status': 'OK' if detecao_ok else 'INVÁLIDO',
+                        'calc': int(checksum_calc, 2),
+                        'recv': int(checksum_recv, 2),
+                    }})    
 
                 else:
                     detecao_ok = True

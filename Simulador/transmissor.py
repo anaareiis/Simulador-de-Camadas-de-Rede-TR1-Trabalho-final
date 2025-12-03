@@ -89,7 +89,7 @@ def run_transmitter(params):
             logger.info(f"1. (App) Mensagem original em bits (ASCII): {format_log(bits)}")
             update_callback({'type': 'log', 'message': f"1. (App) Mensagem original (ASCII): {len(bits)} bits"})
 
-        # --- Camada de Enlace: Detecção de erros (CRC-32, Paridade) ---
+        # --- Camada de Enlace: Detecção de erros (CRC-32, Paridade, Checksum) ---
         detecao_selecionada = config["detecao_erro_type"]
         payload_com_detecao = bits
         if detecao_selecionada == "CRC-32":
@@ -106,6 +106,14 @@ def run_transmitter(params):
             payload_com_detecao = "".join(bytes_com_paridade)
             logger.info(f"2. (Enlace) Adicionada Paridade Par (esquema 7+1). Payload agora com {len(payload_com_detecao)} bits.")
             update_callback({'type': 'log', 'message': f"2. (Enlace) Adicionada Paridade Par. Total: {len(payload_com_detecao)} bits."})
+        elif detecao_selecionada == "Checksum":  # Checksum
+            # Adiciona checksum de 16 bits
+            payload_com_detecao = error_detector.add_checksum(bits, checksum_bits=16)
+            logger.info(f"2. (Enlace) Adicionado Checksum (16 bits). Payload agora com {len(payload_com_detecao)} bits.")
+            update_callback({'type': 'log', 'message': f"2. (Enlace) Adicionado Checksum 16-bit. Total: {len(payload_com_detecao)} bits."})
+            # Log detalhado para debug
+            checksum_value = payload_com_detecao[-16:]
+            logger.debug(f"Checksum calculado: {checksum_value} (0x{int(checksum_value, 2):04X})")    
 
         # --- Camada de Enlace: Correção de erros (Hamming) ---
         correcao_selecionada = config["correcao_erro_type"]
@@ -136,7 +144,7 @@ def run_transmitter(params):
         logger.info(f"4. (Enlace) Enquadramento '{enquadramento_selecionado}' aplicado. Frame agora com {len(frame_final_apos_enquadramento)} bits.")
         update_callback({'type': 'log', 'message': f"4. (Enlace) Enquadramento aplicado. Frame: {len(frame_final_apos_enquadramento)} bits."})
 
-        # --- NOVO: Print no terminal DEPOIS do enquadramento ---
+        # Print no terminal DEPOIS do enquadramento
         logger.info(f"DEBUG: Enquadramento - Dados DEPOIS: {format_log(frame_final_apos_enquadramento)} (len={len(frame_final_apos_enquadramento)})")
         # -------------------------------------------------------
 
@@ -149,10 +157,11 @@ def run_transmitter(params):
             }
         })
 
-        # --- Camada Física: Padding para 8-QAM ---
+        # --- Camada Física: Padding para QAM e QPSK 
         mod_portadora = config["mod_portadora_type"]
         frame_for_physical_layer = frame_final_apos_enquadramento # Use the framed data for physical layer
-        if mod_portadora == "8-QAM":
+
+        if mod_portadora == "8-QAM":    # padding para 8_QAM
             padding_needed = len(frame_for_physical_layer) % 3
             if padding_needed != 0:
                 qam_pad = 3 - padding_needed
@@ -161,9 +170,28 @@ def run_transmitter(params):
             else:
                 qam_pad = 0
             config["qam_pad"] = qam_pad
+        elif mod_portadora == "16-QAM":   # padding para 16-QAM
+            padding_needed = len(frame_for_physical_layer) % 4
+            if padding_needed != 0:
+                qam_pad = 4 - padding_needed
+                frame_for_physical_layer += '0' * qam_pad
+                logger.info(f"(Pós-Enquadramento) Adicionado {qam_pad} bits de padding para alinhar o frame final com 16-QAM.")
+            else:
+                qam_pad = 0
+            config["qam_pad"] = qam_pad
+        elif mod_portadora == "QPSK":  # padding para QPSK
+            padding_needed = len(frame_for_physical_layer) % 2
+            if padding_needed != 0:
+                qpsk_pad = 2 - padding_needed
+                frame_for_physical_layer += '0' * qpsk_pad
+                logger.info(f"(Pós-Enquadramento) Adicionado {qpsk_pad} bits de padding para alinhar o frame final com QPSK.")
+            else:
+                qpsk_pad = 0
+            config["qam_pad"] = qpsk_pad  # Usando mesma chave para compatibilidade
         else:
             config["qam_pad"] = 0
-        config['original_payload_len'] = len(frame_for_physical_layer) # This now includes framing and QAM padding
+        
+        config['original_payload_len'] = len(frame_for_physical_layer)
 
         # --- Camada Física: Codificação Digital (Codificação de Linha) ---
         digital_signal_plot = digital_encoder.encode(frame_for_physical_layer, config["mod_digital_type"], samples_per_bit)
@@ -191,6 +219,13 @@ def run_transmitter(params):
             t_analog = np.arange(len(signal_source_for_analog)) / config["sampling_rate"]
             analog_signal = signal_source_for_analog
             qam_points = []
+        elif mod_portadora == "QPSK":  
+            signal_source = frame_for_physical_layer
+            t_analog, analog_signal, *qpsk_points = modulator.modulate(signal_source, mod_portadora)
+            qam_points = qpsk_points if qpsk_points else []
+        elif mod_portadora == "16-QAM":
+            signal_source = frame_for_physical_layer
+            t_analog, analog_signal, *qam_points = modulator.modulate(signal_source, mod_portadora)    
         else:  # 8-QAM ou outros
             signal_source = frame_for_physical_layer
             t_analog, analog_signal, *qam_points = modulator.modulate(signal_source, mod_portadora)

@@ -76,12 +76,12 @@ Execute o transmissor e o receptor em terminais separados:
 
 ### 🛰️ Transmissor:
 ```bash
-python gui_transmissor.py
+python3 gui_transmissor.py
 ```
 
 ### 📡 Receptor:
 ```bash
-python gui_receptor.py
+python3 gui_receptor.py
 ```
 
 Uma interface gráfica será aberta permitindo simular técnicas como enquadramento, modulação digital e analógica, além de métodos para controle de erros como paridade e CRC.

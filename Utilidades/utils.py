@@ -98,3 +98,98 @@ def plot_constellation(qam_points, title="Diagrama de Constelação 8-QAM"):
 
     plt.tight_layout()
     plt.show()
+
+def plot_qam16_constellation(qam_points, title="Diagrama de Constelação 16-QAM"):
+    """
+    Plota o diagrama de constelação para 16-QAM.
+    """
+    i_components = [p.real for p in qam_points]
+    q_components = [p.imag for p in qam_points]
+    
+    plt.figure(figsize=(8, 8))
+    plt.scatter(i_components, q_components, c='blue', marker='o', alpha=0.6)
+    
+    # Adiciona pontos de referência da constelação ideal
+    qam16_ref = [
+        -3+3j, -1+3j, 1+3j, 3+3j,
+        -3+1j, -1+1j, 1+1j, 3+1j,
+        -3-1j, -1-1j, 1-1j, 3-1j,
+        -3-3j, -1-3j, 1-3j, 3-3j
+    ]
+    real_ref = [p.real for p in qam16_ref]
+    imag_ref = [p.imag for p in qam16_ref]
+    plt.scatter(real_ref, imag_ref, color='red', s=50, alpha=0.3, marker='x')
+    
+    plt.title(title, fontsize=14)
+    plt.xlabel("Componente em Fase (I)", fontsize=12)
+    plt.ylabel("Componente em Quadratura (Q)", fontsize=12)
+    plt.grid(True, alpha=0.3)
+    plt.axhline(0, color='black', linewidth=0.5)
+    plt.axvline(0, color='black', linewidth=0.5)
+    plt.axis('equal')
+    
+    # Adiciona grade mais densa para 16-QAM
+    for i in [-3, -1, 1, 3]:
+        plt.axhline(i, color='gray', linewidth=0.2, linestyle='--')
+        plt.axvline(i, color='gray', linewidth=0.2, linestyle='--')
+    
+    plt.tight_layout()
+    plt.show()
+
+def format_checksum_info(checksum_binary, data_bits=None):
+    """
+    Formata informações do checksum para exibição.
+    
+    Args:
+        checksum_binary (str): String binária do checksum
+        data_bits (str, opcional): Dados originais para cálculo
+        
+    Returns:
+        str: String formatada com informações do checksum
+    """
+    if len(checksum_binary) not in [8, 16, 32]:
+        return f"Checksum inválido: {checksum_binary} ({len(checksum_binary)} bits)"
+    
+    checksum_int = int(checksum_binary, 2)
+    hex_width = len(checksum_binary) // 4
+    
+    info = f"Checksum: {checksum_binary}\n"
+    info += f"  Decimal: {checksum_int}\n"
+    info += f"  Hexadecimal: 0x{checksum_int:0{hex_width}X}\n"
+    
+    if data_bits:
+        # Calcula checksum dos dados para verificação
+        from CamadaEnlace.deteccao_erros import ErrorDetector
+        detector = ErrorDetector()
+        calculated = detector.calculate_checksum(data_bits, len(checksum_binary))
+        info += f"  Verificação: {'OK' if checksum_binary == calculated else 'INVÁLIDO'}\n"
+    
+    return info
+
+def demonstrate_checksum_example():
+    """
+    Demonstra um exemplo completo de checksum.
+    """
+    example_data = "010000010100001001000011"  # "ABC" em ASCII: 01000001 01000010 01000011
+    
+    print("📊 Exemplo de Checksum")
+    print("=" * 60)
+    print(f"Dados: '{example_data}'")
+    print(f"       (ASCII: 'A' 'B' 'C')")
+    
+    from CamadaEnlace.deteccao_erros import ErrorDetector
+    detector = ErrorDetector()
+    
+    checksum_8 = detector.calculate_checksum(example_data, 8)
+    checksum_16 = detector.calculate_checksum(example_data, 16)
+    
+    print(f"\nChecksum 8-bit:  {checksum_8} (0x{int(checksum_8, 2):02X})")
+    print(f"Checksum 16-bit: {checksum_16} (0x{int(checksum_16, 2):04X})")
+    
+    # Testar com erro
+    corrupted = list(example_data + checksum_16)
+    corrupted[5] = '1' if corrupted[5] == '0' else '0'  # Inverte um bit
+    corrupted_str = ''.join(corrupted)
+    
+    is_valid = detector.verify_checksum(corrupted_str, 16)
+    print(f"\nApós inverter bit 5: {'❌ Erro detectado!' if not is_valid else '✅ Não detectado (ERRO!)'}")    
