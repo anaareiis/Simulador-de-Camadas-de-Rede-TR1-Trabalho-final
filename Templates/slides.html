@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Apresentação: Simulador de Camadas - NoCreativityNet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .slide { display: none; animation: fadeIn 0.45s ease-in-out; }
+        .slide.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: translateY(0);} }
+        .slide-content { max-width: 92%; }
+        /* layout */
+        .presentation { height: 600px; }
+        .slide-area { position: relative; height: 100%; }
+        .slide.absolute { position: absolute; inset: 0; padding: 2rem; }
+        /* helper */
+        .kbd { background:#111827; color:white; padding:0.12rem 0.5rem; border-radius:6px; font-size:0.9rem; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-6">
+
+    <div id="presentation-container" class="w-full max-w-5xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col presentation">
+        <div id="slide-area" class="flex-grow slide-area">
+            <!-- Slide 1: Título -->
+            <div id="slide-1" class="slide active absolute inset-0 flex-col items-center justify-center text-center p-8 bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
+                <div class="slide-content">
+                    <h1 class="text-5xl md:text-6xl font-extrabold mb-4">Simulador de Camadas de Redes — NoCreativityNet</h1>
+                    <p class="text-xl md:text-2xl font-light mb-8">Disciplina: Teleinformática e Redes 1<br>Professor: Marcelo Marotta</p>
+                    <div class="text-left bg-black bg-opacity-20 p-6 rounded-lg max-w-md mx-auto">
+                        <h2 class="text-lg font-bold mb-2">Integrantes:</h2>
+                        <ul class="space-y-1 text-sm">
+                            <li>Ana Luísa Reis Nascente — 211045688</li>
+                            <li>Gabriel de Sousa — 211056000</li>
+                            <li>Marina Pimentel Moreno — 222014071</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Introdução e Objetivos -->
+            <div id="slide-2" class="slide absolute inset-0 flex-col items-start justify-center p-8 md:p-12">
+                <div class="slide-content w-full">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Introdução e Objetivos</h2>
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Objetivo do Projeto</h3>
+                    <ul class="space-y-2 text-lg text-gray-700 list-disc list-inside mb-6">
+                        <li>Desenvolver um simulador em Python para visualizar e compreender na prática as camadas <strong>Física</strong> e de <strong>Enlace</strong> do modelo OSI.</li>
+                        <li>Simular o percurso completo dos dados: codificação, enquadramento, modulação, canal ruidoso, demodulação e verificação de integridade.</li>
+                    </ul>
+
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Funcionalidades Implementadas</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+                        <div>
+                            <strong class="font-medium text-gray-900">Camada Física:</strong>
+                            <ul class="list-disc list-inside ml-4 mt-1">
+                                <li>Modulações digitais: NRZ-Polar, Manchester, Bipolar (AMI).</li>
+                                <li>Modulação por portadora: ASK, FSK, 8-QAM.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong class="font-medium text-gray-900">Camada de Enlace:</strong>
+                            <ul class="list-disc list-inside ml-4 mt-1">
+                                <li>Enquadramento de Dados: Contagem de Caracteres, Byte Stuffing, Bit Stuffing.</li>
+                                <li>Proteção de Dados: Detecção de erros (Paridade Par, CRC-32) e Correção de erros (Hamming).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Implementação - Camada Física -->
+            <div id="slide-3" class="slide absolute inset-0 flex-col items-start justify-center p-8 md:p-12">
+                <div class="slide-content w-full">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Implementação — Camada Física</h2>
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Codificação de Linha (Digital Encoder)</h3>
+                            <p class="text-gray-600 mb-2">Transforma a sequência de bits em sinais de banda-base:</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                <li><strong>NRZ-Polar:</strong> +A para '1' e −A para '0' — adequado para análise de amplitude.</li>
+                                <li><strong>Manchester:</strong> Transição no meio do bit — sincronização embutida.</li>
+                                <li><strong>Bipolar (AMI):</strong> Alterna polaridade nos '1', reduz componente DC.</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Modulação por Portadora (Carrier Modulator)</h3>
+                            <p class="text-gray-600 mb-2">Converte o sinal banda-base para sinal apropriado ao meio analógico:</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                <li><strong>ASK:</strong> Modula amplitude da portadora.</li>
+                                <li><strong>FSK:</strong> Usa frequências distintas por símbolo.</li>
+                                <li><strong>8-QAM:</strong> Agrupa 3 bits por símbolo, mapeando-os em um dos 8 pontos da constelação de amplitude e fase.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Modulações Digitais -->
+            <div id="slide-4" class="slide absolute inset-0 flex-col items-start justify-start p-8 md:p-12 overflow-auto">
+                <div class="slide-content w-full">
+
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+                        Modulações Digitais
+                    </h2>
+
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm space-y-10">
+
+                        <!-- NRZ-POLAR -->
+                        <div>
+                            <h3 class="text-xl font-bold mb-2 text-gray-900">NRZ-Polar</h3>
+                            <p class="text-gray-700 mb-4">
+                                Representação direta dos bits usando níveis +A e −A.
+                            </p>
+
+                            <div class="flex justify-center">
+                                <img 
+                                    src="Imagens TR1/1nrz_polar.png"
+                                    alt="Sinal NRZ-Polar"
+                                    class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                                    style="max-height: 300px;"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- MANCHESTER -->
+                        <div>
+                            <h3 class="text-xl font-bold mb-2 text-gray-900">Manchester</h3>
+                            <p class="text-gray-700 mb-4">
+                                Cada bit possui uma transição no meio do período para garantir sincronização.
+                            </p>
+
+                            <div class="flex justify-center">
+                                <img 
+                                    src="Imagens TR1/1manchester.png"
+                                    alt="Sinal Manchester"
+                                    class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                                    style="max-height: 300px;"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- BIPOLAR / AMI -->
+                        <div>
+                            <h3 class="text-xl font-bold mb-2 text-gray-900">Bipolar (AMI)</h3>
+                            <p class="text-gray-700 mb-4">
+                                Alterna a polaridade nos bits '1', reduzindo componente DC.
+                            </p>
+
+                            <div class="flex justify-center">
+                                <img 
+                                    src="Imagens TR1/1bipolarami.png"
+                                    alt="Sinal Bipolar AMI"
+                                    class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                                    style="max-height: 300px;"
+                                >
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        <!-- Slide 5: Código Resumido — modulacoes_digitais.py (CENTRALIZADO APENAS NESTE SLIDE) -->
+        <div id="slide-5" class="slide absolute inset-0 flex-col p-8 md:p-12 overflow-auto">
+        <div class="slide-content w-full max-w-5xl mx-auto">
+
+            <!-- título (no topo, centralizado) -->
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">
+            Código modulacoes_digitais.py
+            </h2>
+
+            <!-- wrapper que centraliza apenas o cartão do código HORIZONTALMENTE -->
+            <div style="width:100%; display:flex; justify-content:center; box-sizing:border-box;">
+            <!-- cartão do código (max-width evita "vazar" a largura) -->
+            <div
+                style="width:100%; height: 80%; max-width:950px; max-height: 410px; border-radius:10px; box-shadow:0 10px 24px rgba(2,6,23,0.15); 
+                    background: linear-gradient(180deg,#071028 0%, #0b1730 100%); overflow:hidden;"
+            >
+                <div style="padding:18px;">
+                <!-- cabeçalho pequeno do cartão -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="color:#93b0ff; font-size:0.9rem; font-weight:600;">modulacoes_digitais.py</span>
+                    <span style="color:#9fb6ff; font-size:0.75rem;">Resumo</span>
+                </div>
+
+                <!-- PRE: forçado a ficar centralizado pela div pai -->
+                <pre style="margin:0 auto; color:#bcd1ff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+                            font-size:0.95rem; line-height:1.5; max-height:420px; overflow:auto; padding:14px; border-radius:6px;
+                            box-sizing:border-box; background: transparent; width:100%;">
+import numpy as np
+
+class DigitalEncoder:
+
+    def encode(self, bits, encoding_type, samples_per_bit=10):
+        if encoding_type == "NRZ-Polar":
+            return self.nrz_polar(bits, samples_per_bit)
+        elif encoding_type == "Manchester":
+            return self.manchester(bits, samples_per_bit)
+        elif encoding_type == "Bipolar":
+            return self.bipolar_ami(bits, samples_per_bit)
+        else:
+            raise ValueError(f"Tipo de codificação desconhecido: {encoding_type}")
+
+    def nrz_polar(self, bits, samples_per_bit=10):
+        signal = []
+        for bit in bits:
+            val = 1.0 if int(bit) == 1 else -1.0
+            signal.extend([val] * samples_per_bit)
+        return np.array(signal)
+
+    def manchester(self, bits, samples_per_bit=10):
+        half_spb = samples_per_bit // 2
+        signal = []
+        for bit in bits:
+            if int(bit) == 0:
+                signal.extend([1.0] * half_spb)
+                signal.extend([-1.0] * half_spb)
+            else:
+                signal.extend([-1.0] * half_spb)
+                signal.extend([1.0] * half_spb)
+        return np.array(signal)
+
+    def bipolar_ami(self, bits, samples_per_bit=10):
+        signal = []
+        last_pulse_level = -1.0  # Inicializa para que o primeiro pulso seja positivo
+        for bit in bits:
+            if int(bit) == 0:
+                signal.extend([0.0] * samples_per_bit)
+            else:
+                last_pulse_level *= -1.0
+                signal.extend([last_pulse_level] * samples_per_bit)
+        return np.array(signal)
+
+
+
+
+        
+                </pre>
+
+                </div>
+            </div>
+            </div>
+
+        </div>
+        </div>
+
+            <!-- Slide 6: Modulação por Portadora -->
+            <div id="slide-6" class="slide absolute inset-0 flex-col items-start justify-start p-8 md:p-12 overflow-auto">
+                <div class="slide-content w-full">
+
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+                        Modulação por Portadora (Carrier Modulator)
+                    </h2>
+
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm space-y-10">
+
+                        <!-- ASK -->
+                        <div>
+                            <h3 class="text-xl font-bold mb-2 text-gray-900">ASK — Amplitude Shift Keying</h3>
+                            <p class="text-gray-700 mb-4">
+                                Modula a <strong>amplitude</strong> da portadora para representar bits.
+                            </p>
+
+                            <div class="flex justify-center">
+                                <img 
+                                    src="Imagens TR1/ask.png"
+                                    alt="Sinal ASK"
+                                    class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                                    style="max-height: 300px;"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- FSK -->
+                        <div>
+                            <h3 class="text-xl font-bold mb-2 text-gray-900">FSK — Frequency Shift Keying</h3>
+                            <p class="text-gray-700 mb-4">
+                                Utiliza <strong>frequências diferentes</strong> da portadora para cada símbolo.
+                            </p>
+
+                            <div class="flex justify-center">
+                                <img 
+                                    src="Imagens TR1/fsk.png"
+                                    alt="Sinal FSK"
+                                    class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                                    style="max-height: 300px;"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- 8-QAM -->
+                        <div>
+                            <h3 class="text-xl font-bold mb-2 text-gray-900">8-QAM — Quadrature Amplitude Modulation</h3>
+                            <p class="text-gray-700 mb-4">
+                                Agrupa <strong>3 bits por símbolo</strong>, mapeando-os em um dos <strong>8 pontos</strong> da constelação
+                                formada pela combinação de amplitude e fase.
+                            </p>
+
+                            <div class="flex justify-center">
+                                <img 
+                                    src="Imagens TR1/8qam.png"
+                                    alt="Constelação 8-QAM"
+                                    class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                                    style="max-height: 300px;"
+                                >
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-center">
+                                <img 
+                                    src="Imagens TR1/8qamconstela.png"
+                                    alt="Constelação 8-QAM"
+                                    class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                                    style="max-height: 300px;"
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Slide 7: Código modulacoes_portadora.py (CENTRALIZADO APENAS NESTE SLIDE) -->
+        <div id="slide-7" class="slide absolute inset-0 flex-col p-8 md:p-12 overflow-auto">
+        <div class="slide-content w-full max-w-5xl mx-auto">
+
+            <!-- título (no topo, centralizado) -->
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">
+            Código modulacoes_portadora.py
+            </h2>
+
+            <!-- wrapper que centraliza apenas o cartão do código HORIZONTALMENTE -->
+            <div style="width:100%; display:flex; justify-content:center; box-sizing:border-box;">
+            <!-- cartão do código (max-width evita "vazar" a largura) -->
+            <div
+                style="width:100%; height: 80%; max-width:950px; max-height: 410px; border-radius:10px; box-shadow:0 10px 24px rgba(2,6,23,0.15); 
+                    background: linear-gradient(180deg,#071028 0%, #0b1730 100%); overflow:hidden;"
+            >
+                <div style="padding:18px;">
+                <!-- cabeçalho pequeno do cartão -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="color:#93b0ff; font-size:0.9rem; font-weight:600;">modulacoes_portadora.py</span>
+                    <span style="color:#9fb6ff; font-size:0.75rem;">Resumo</span>
+                </div>
+
+                <!-- PRE: forçado a ficar centralizado pela div pai -->
+                <pre style="margin:0 auto; color:#bcd1ff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+                            font-size:0.95rem; line-height:1.5; max-height:420px; overflow:auto; padding:14px; border-radius:6px;
+                            box-sizing:border-box; background: transparent; width:100%;">
+import numpy as np
+import math
+
+class CarrierModulator:
+    def __init__(self, bit_rate, carrier_freq, amplitude, sampling_rate):
+        self.bit_rate = bit_rate
+        self.carrier_freq = carrier_freq
+        self.amplitude = amplitude
+        self.sampling_rate = sampling_rate
+        # Calcula o número de amostras por bit para reconstrução precisa da forma de onda.
+        self.samples_per_bit = int(sampling_rate / bit_rate)
+
+        # Mapeamento da constelação 8-QAM: associa cada símbolo de 3 bits a um ponto complexo (I, Q).
+        # Estes pontos definem as combinações de amplitude e fase.
+        self.QAM8_MAP = {
+            '000': complex(1, 0),
+            '001': complex(0, 1),
+            '010': complex(-1, 0),
+            '011': complex(0, -1),
+            '100': complex(1/np.sqrt(2), 1/np.sqrt(2)),
+            '101': complex(1/np.sqrt(2), -1/np.sqrt(2)),
+            '110': complex(-1/np.sqrt(2), 1/np.sqrt(2)),
+            '111': complex(-1/np.sqrt(2), -1/np.sqrt(2)),
+        }
+        # Cria um mapeamento reverso para facilitar a busca do símbolo de bits durante a demodulação.
+        self.INV_QAM8_MAP = {v: k for k, v in self.QAM8_MAP.items()}
+
+    def modulate(self, signal_source, modulation_type):
+        if modulation_type == "ASK":
+            return self.modulate_ask(signal_source)
+        elif modulation_type == "FSK":
+            return self.modulate_fsk(signal_source)
+        elif modulation_type == "8-QAM":
+            return self.modulate_8qam(signal_source)
+        elif modulation_type == "Nenhum": # NOVO: Caso a modulação por portadora seja "Nenhum"
+            # Se não há modulação de portadora, o sinal "analógico" é o próprio sinal digital em banda base.
+            # O `signal_source` aqui já deve ser uma forma de onda digital (array NumPy de +1.0/-1.0).
+            num_samples = len(signal_source)
+            t = np.arange(num_samples) / self.sampling_rate # Eixo de tempo para o sinal digital.
+            return t, signal_source, [] # Retorna o sinal digital como se fosse o analógico, sem pontos QAM.
+        else:
+            raise ValueError(f"Tipo de modulação desconhecido: {modulation_type}")
+
+    def modulate_ask(self, digital_signal):
+        num_bits = len(digital_signal)
+        # Cria um eixo de tempo contínuo para o sinal analógico, baseado na taxa de amostragem.
+        t = np.linspace(0, num_bits / self.bit_rate, num_bits * self.samples_per_bit, endpoint=False)
+
+        # Repete os níveis do sinal digital para corresponder ao número de amostras por bit e escala pela amplitude.
+        amplitude_signal = np.repeat(digital_signal * self.amplitude, self.samples_per_bit)
+        carrier = np.sin(2 * np.pi * self.carrier_freq * t) # Gera a onda portadora senoidal.
+        modulated = amplitude_signal * carrier  # Modula a amplitude da portadora com o sinal digital.
+        return t, modulated, []  # ASK não possui diagrama de constelação convencional.
+
+    def modulate_fsk(self, digital_signal):
+        num_bits = len(digital_signal)
+        # Cria um eixo de tempo contínuo para o sinal analógico.
+        t = np.linspace(0, num_bits / self.bit_rate, num_bits * self.samples_per_bit, endpoint=False)
+
+        f_dev = self.bit_rate  # Define o desvio de frequência para as duas frequências FSK.
+        f1 = self.carrier_freq + f_dev # Frequência para representar o bit '1'.
+        f0 = self.carrier_freq - f_dev # Frequência para representar o bit '0'.
+
+        modulated = np.zeros_like(t) # Inicializa o array do sinal modulado com zeros.
+        for i, level in enumerate(digital_signal): # Itera sobre cada bit do sinal digital.
+            start_sample = i * self.samples_per_bit # Amostra de início para o período do bit atual.
+            end_sample = (i + 1) * self.samples_per_bit # Amostra de fim para o período do bit atual.
+            freq_to_use = f1 if level == 1 else f0 # Seleciona a frequência com base no valor do bit.
+            # Gera o segmento de onda senoidal para o bit atual e o adiciona ao sinal modulado.
+            modulated[start_sample:end_sample] = self.amplitude * np.sin(2 * np.pi * freq_to_use * t[start_sample:end_sample])
+        return t, modulated, []  # FSK também não possui diagrama de constelação convencional.
+
+    def modulate_8qam(self, bits):
+        # Adiciona bits de padding se o comprimento total não for um múltiplo de 3 (para formar símbolos completos).
+        if len(bits) % 3 != 0:
+            bits += '0' * (3 - len(bits) % 3)
+
+        # Divide a string de bits em símbolos de 3 bits.
+        symbols = [bits[i:i+3] for i in range(0, len(bits), 3)]
+        # Mapeia cada símbolo de 3 bits para seu ponto complexo (I, Q) na constelação.
+        qam_points = [self.QAM8_MAP.get(s, complex(0, 0)) for s in symbols]
+
+        # Calcula o número de amostras por símbolo (3 bits por símbolo * amostras por bit).
+        samples_per_symbol = self.samples_per_bit * 3
+        # Cria o eixo de tempo para o sinal modulado, abrangendo todos os símbolos.
+        t = np.linspace(0, len(symbols) * 3 / self.bit_rate, len(symbols) * samples_per_symbol, endpoint=False)
+        modulated = np.zeros(len(t)) # Inicializa o array do sinal modulado.
+
+        for i, point in enumerate(qam_points): # Itera sobre cada ponto (símbolo) da constelação.
+            start_sample = i * samples_per_symbol # Amostra de início para o símbolo atual.
+            end_sample = (i + 1) * samples_per_symbol # Amostra de fim para o símbolo atual.
+            # Calcula as componentes em fase (I) e em quadratura (Q) escaladas pela amplitude.
+            i_comp = point.real * self.amplitude
+            q_comp = point.imag * self.amplitude
+
+            # Gera as portadoras ortogonais (cosseno para I, seno para Q) para o segmento de tempo atual.
+            cos_carrier = np.cos(2 * np.pi * self.carrier_freq * t[start_sample:end_sample])
+            sin_carrier = np.sin(2 * np.pi * self.carrier_freq * t[start_sample:end_sample])
+            # Combina as componentes I e Q com suas portadoras para formar o sinal 8-QAM.
+            modulated[start_sample:end_sample] = i_comp * cos_carrier - q_comp * sin_carrier
+        return t, modulated, qam_points # Retorna o sinal, o eixo de tempo e os pontos da constelação.
+
+    def demodulate(self, received_signal, modulation_type, config, digital_encoder_instance):
+        if modulation_type == "ASK":
+            return self._demodulate_ask(received_signal, config, digital_encoder_instance)
+        elif modulation_type == "FSK":
+            return self._demodulate_fsk(received_signal, config, digital_encoder_instance)
+        elif modulation_type == "8-QAM":
+            # Demodula 8-QAM e retorna os bits, o sinal digital reconstruído e, **os pontos da constelação ruidosa**.
+            return self._demodulate_8qam(received_signal, config, digital_encoder_instance)
+        elif modulation_type == "Nenhum": # Caso a modulação por portadora seja "Nenhum"
+            # Se não houve modulação de portadora, o sinal recebido já é o sinal digital em banda base.
+            # O objetivo aqui é reamostrar e converter esse sinal digital de volta para a string de bits.
+            samples_per_bit = int(config["sampling_rate"] / config["bit_rate"])
+            num_bits = len(received_signal) // samples_per_bit
+            
+            bits_str = ""
+            for i in range(num_bits):
+                # Amostra o sinal no meio de cada período de bit para determinar o valor do bit.
+                sample_index = i * samples_per_bit + samples_per_bit // 2
+                if sample_index < len(received_signal): # Garante que o índice esteja dentro dos limites.
+                    val = received_signal[sample_index]
+                    bits_str += '1' if val > 0 else '0' # Determina o bit (1 para positivo, 0 para negativo/zero).
+                else: # Em caso de sinal truncado, assume '0' para bits faltantes.
+                    bits_str += '0' 
+            
+            # Reconstrói a forma de onda digital (codificação de linha) usando o DigitalEncoder
+            # com os bits recuperados e o tipo de modulação digital original.
+            digital_signal_rx = digital_encoder_instance.encode(bits_str, config['mod_digital_type'], samples_per_bit)
+            t_digital = np.arange(len(digital_signal_rx)) / config["sampling_rate"] # Eixo de tempo para a forma de onda reconstruída.
+            # NOVO: Retorna uma lista vazia para os pontos de constelação ruidosa, pois não há constelação para "Nenhum".
+            return bits_str, digital_signal_rx, t_digital, [] 
+        else:
+            raise ValueError(f"Tipo de demodulação desconhecido: {modulation_type}")
+
+    def _demodulate_ask(self, received_signal, config, digital_encoder_instance):
+        bit_rate = config['bit_rate']
+        sampling_rate = config['sampling_rate']
+        freq_base = config['freq_base']
+        mod_digital_type = config.get('mod_digital_type', 'NRZ-Polar')
+
+        samples_per_bit = int(sampling_rate / bit_rate)
+        num_bits = len(received_signal) // samples_per_bit
+        t_bit_period = np.linspace(0, 1 / bit_rate, samples_per_bit, endpoint=False) # Eixo de tempo para um período de bit.
+        local_carrier = np.sin(2 * np.pi * freq_base * t_bit_period) # Portadora local para correlação.
+
+        # Limiar de decisão para ASK: metade da energia do sinal de um '1' (assumindo OOK).
+        threshold = self.amplitude * np.sum(local_carrier * local_carrier) / 2.0 
+
+        bits = "" # String para armazenar os bits demodulados.
+        for i in range(num_bits): # Processa o sinal segmento por segmento, um para cada bit.
+            segment = received_signal[i * samples_per_bit : (i + 1) * samples_per_bit]
+            correlation = np.sum(segment * local_carrier) # Calcula a correlação do segmento com a portadora local.
+            bits += '1' if correlation > threshold else '0' # Decide o bit com base no limiar.
+
+        # Reconstrói a forma de onda digital (codificação de linha) usando os bits recuperados.
+        digital_signal_rx = digital_encoder_instance.encode(bits, mod_digital_type, samples_per_bit)
+        t_digital = np.arange(len(digital_signal_rx)) / sampling_rate # Eixo de tempo para a forma de onda reconstruída.
+        # NOVO: Retorna uma lista vazia para os pontos de constelação ruidosa, pois ASK não tem constelação.
+        return bits, digital_signal_rx, t_digital, [] 
+
+    def _demodulate_fsk(self, received_signal, config, digital_encoder_instance):
+        bit_rate = config['bit_rate']
+        sampling_rate = config['sampling_rate']
+        freq_base = config['freq_base']
+        mod_digital_type = config.get('mod_digital_type', 'NRZ-Polar')
+
+        samples_per_bit = int(sampling_rate / bit_rate)
+        num_bits = len(received_signal) // samples_per_bit
+        t_bit_period = np.linspace(0, 1 / bit_rate, samples_per_bit, endpoint=False) # Eixo de tempo para um período de bit.
+
+        f_dev = bit_rate # Desvio de frequência utilizado para as portadoras FSK.
+        f1 = freq_base + f_dev # Frequência para o bit '1'.
+        f0 = freq_base - f_dev # Frequência para o bit '0'.
+        local_carrier_1 = np.sin(2 * np.pi * f1 * t_bit_period) # Portadora local para '1'.
+        local_carrier_0 = np.sin(2 * np.pi * f0 * t_bit_period) # Portadora local para '0'.
+
+        bits = "" # String para armazenar os bits demodulados.
+        for i in range(num_bits): # Processa o sinal segmento por segmento.
+            segment = received_signal[i * samples_per_bit : (i + 1) * samples_per_bit]
+            correlation_1 = np.sum(segment * local_carrier_1) # Correlação com portadora '1'.
+            correlation_0 = np.sum(segment * local_carrier_0) # Correlação com portadora '0'.
+            bits += '1' if correlation_1 > correlation_0 else '0' # Decide o bit com base na maior correlação.
+
+        # Reconstrói a forma de onda digital (codificação de linha) usando os bits recuperados.
+        digital_signal_rx = digital_encoder_instance.encode(bits, mod_digital_type, samples_per_bit)
+        t_digital = np.arange(len(digital_signal_rx)) / sampling_rate # Eixo de tempo para a forma de onda reconstruída.
+        # NOVO: Retorna uma lista vazia para os pontos de constelação ruidosa, pois FSK não tem constelação.
+        return bits, digital_signal_rx, t_digital, [] 
+
+    def _demodulate_8qam(self, received_signal, config, digital_encoder_instance):
+        bit_rate = config['bit_rate']
+        sampling_rate = config['sampling_rate']
+        freq_base = config['freq_base']
+        samples_per_symbol = int(sampling_rate / bit_rate) * 3 # Amostras por símbolo (3 bits/símbolo).
+        num_symbols = len(received_signal) // samples_per_symbol # Número total de símbolos no sinal.
+
+        bits = "" # String para armazenar os bits demodulados.
+        received_qam_points = [] # NOVO: Lista para armazenar os pontos da constelação com ruído.
+
+        for i in range(num_symbols): # Processa o sinal símbolo por símbolo.
+            start_sample = i * samples_per_symbol
+            end_sample = (i + 1) * samples_per_symbol
+            segment = received_signal[start_sample:end_sample]
+            if len(segment) < samples_per_symbol: # Verifica se o segmento está completo.
+                break # Sai do loop se o último segmento estiver incompleto.
+
+            t_segment = np.linspace(i * 3 / bit_rate, (i + 1) * 3 / bit_rate, samples_per_symbol, endpoint=False) # Eixo de tempo para o segmento.
+            # Portadoras locais ortogonais para projeção I e Q.
+            local_cos_carrier = np.cos(2 * np.pi * freq_base * t_segment)
+            local_sin_carrier = np.sin(2 * np.pi * freq_base * t_segment)
+
+            # Projeção do sinal recebido nas componentes I e Q.
+            i_component = np.sum(segment * local_cos_carrier)
+            q_component = np.sum(segment * -local_sin_carrier) # Note o sinal negativo para a componente Q.
+            
+            # Normalização das componentes I e Q pela energia da portadora (assumindo portadoras de amplitude 1).
+            normalization_factor = self.amplitude * np.sum(local_cos_carrier**2) # Energia da portadora.
+            received_point = complex(i_component / normalization_factor, q_component / normalization_factor) if normalization_factor > 1e-9 else 0j
+            received_qam_points.append(received_point) # NOVO: Adiciona o ponto recebido (com ruído) à lista.
+            
+            # Encontra o ponto da constelação mais próximo do ponto recebido (detecção por distância mínima).
+            closest_constellation_point = min(self.QAM8_MAP.values(), key=lambda c_point: abs(received_point - c_point))
+            bits += self.INV_QAM8_MAP[closest_constellation_point] # Converte o ponto da constelação de volta para bits.
+
+        # Garante que o tamanho final da string de bits não exceda o comprimento original esperado do payload.
+        expected_len = config.get('original_payload_len', len(bits))
+        bits = bits[:expected_len]
+
+        mod_digital_type = config.get('mod_digital_type', 'NRZ-Polar')
+        # Reconstrói a forma de onda digital (codificação de linha) usando os bits recuperados.
+        digital_signal_rx = digital_encoder_instance.encode(bits, mod_digital_type, self.samples_per_bit)
+        t_digital = np.arange(len(digital_signal_rx)) / sampling_rate # Eixo de tempo para a forma de onda reconstruída.
+        
+        # ALTERAÇÃO: Agora retorna a lista de pontos de constelação ruidosa também.
+        return bits, digital_signal_rx, t_digital, received_qam_points
+
+
+
+
+
+        
+                </pre>
+
+                </div>
+            </div>
+            </div>
+
+        </div>
+        </div>
+
+            <!-- Slide 8: Implementação - Camada de Enlace -->
+            <div id="slide-8" class="slide absolute inset-0 flex-col items-start justify-center p-8 md:p-12">
+                <div class="slide-content w-full">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Implementação — Camada de Enlace</h2>
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Enquadramento (Framer)</h3>
+                            <p class="text-gray-600 mb-2">Delimita quadros para entrega confiável:</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                <li><strong>Contagem de Caracteres:</strong> Cabeçalho com tamanho do payload.</li>
+                                <li><strong>Byte Stuffing:</strong> FLAG + ESC para evitar ambiguidade.</li>
+                                <li><strong>Bit Stuffing:</strong> Inserção de '0' após cinco '1's.</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Detecção e Correção de Erros</h3>
+                            <p class="text-gray-600 mb-2">Mecanismos implementados para proteger a integridade dos dados:</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                <li><strong>Paridade Par:</strong> Simples e adequado para detecção básica.</li>
+                                <li><strong>CRC-32:</strong> Polinômio IEEE 802 para detecção robusta.</li>
+                                <li><strong>Hamming (7,4):</strong> Correção automática de 1 bit por bloco.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Slide 9: Enquadramento de Dados -->
+            <div id="slide-9" class="slide absolute inset-0 flex-col items-start justify-start p-8 md:p-12 overflow-auto">
+            <div class="slide-content w-full">
+
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Enquadramento de Dados</h2>
+
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm space-y-10">
+
+                <!-- Contagem de Caracteres -->
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-gray-900">Contagem de Caracteres</h3>
+                    <p class="text-gray-700 mb-4">
+                    Cabeçalho contendo o tamanho do payload, usado para delimitar quantos bytes pertencem ao quadro.
+                    </p>
+
+                    <div class="flex justify-center">
+                    <img
+                        src="Imagens TR1/Contagem de caracteres.png"
+                        alt="Enquadramento por contagem de caracteres"
+                        class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                        style="max-height: 300px;"
+                    >
+                    </div>
+                </div>
+
+                <!-- Byte Stuffing -->
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-gray-900">Byte Stuffing (FLAG + ESC)</h3>
+                    <p class="text-gray-700 mb-4">
+                    Usa um byte FLAG para início/fim do quadro e um byte ESC para escapar ocorrências do FLAG dentro do payload.
+                    </p>
+
+                    <div class="flex justify-center">
+                    <img
+                        src="Imagens TR1/Byte Stuffing.png"
+                        alt="Enquadramento com FLAG e inserção de bytes"
+                        class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                        style="max-height: 300px;"
+                    >
+                    </div>
+                </div>
+
+                <!-- Bit Stuffing -->
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-gray-900">Bit Stuffing (Inserção de '0')</h3>
+                    <p class="text-gray-700 mb-4">
+                    Insere um bit '0' após qualquer sequência de cinco bits '1' no payload para evitar a ocorrência acidental da FLAG.
+                    </p>
+
+                    <div class="flex justify-center">
+                    <img
+                        src="Imagens TR1/Bit Stuffing.png"
+                        alt="Enquadramento com FLAG e inserção de bits"
+                        class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                        style="max-height: 300px;"
+                    >
+                    </div>
+                </div>
+
+                </div>
+            </div>
+            </div>
+
+            <!-- Slide 10: Código enquadramento.py (CENTRALIZADO APENAS NESTE SLIDE) -->
+            <div id="slide-10" class="slide absolute inset-0 flex-col p-8 md:p-12 overflow-auto">
+            <div class="slide-content w-full max-w-5xl mx-auto">
+
+                <!-- título (no topo, centralizado) -->
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">
+                Código enquadramento.py
+                </h2>
+
+                <!-- wrapper que centraliza apenas o cartão do código HORIZONTALMENTE -->
+                <div style="width:100%; display:flex; justify-content:center; box-sizing:border-box;">
+                <!-- cartão do código (max-width evita "vazar" a largura) -->
+                <div
+                    style="width:100%; height: 80%; max-width:950px; max-height: 410px; border-radius:10px; box-shadow:0 10px 24px rgba(2,6,23,0.15); 
+                        background: linear-gradient(180deg,#071028 0%, #0b1730 100%); overflow:hidden;"
+                >
+                    <div style="padding:18px;">
+                    <!-- cabeçalho pequeno do cartão -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="color:#93b0ff; font-size:0.9rem; font-weight:600;">enquadramento.py</span>
+                        <span style="color:#9fb6ff; font-size:0.75rem;">Resumo</span>
+                    </div>
+
+                    <!-- PRE: forçado a ficar centralizado pela div pai -->
+                    <pre style="margin:0 auto; color:#bcd1ff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+                                font-size:0.95rem; line-height:1.5; max-height:420px; overflow:auto; padding:14px; border-radius:6px;
+                                box-sizing:border-box; background: transparent; width:100%;">
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)  # Ajustável conforme nível desejado (DEBUG, INFO, etc.)
+
+class Framer:
+
+    FLAG_BIT_PATTERN = "01111110"  # Delimitador de quadro padrão HDLC (bit stuffing)
+    FLAG_BYTE = 0x7E               # FLAG em formato de byte (126 decimal)
+    ESC_BYTE = 0x7D                # Byte de escape (125 decimal)
+
+    def frame_char_count(self, payload_bits):
+        logger.debug(f"frame_char_count: entrada payload_bits len={len(payload_bits)}")
+        if len(payload_bits) % 8 != 0:
+            padding = 8 - (len(payload_bits) % 8)
+            payload_bits += '0' * padding  # Alinhamento para múltiplo de 8 bits
+            logger.debug(f"frame_char_count: padding de {padding} bits adicionado")
+
+        num_bytes = len(payload_bits) // 8
+        if num_bytes > 255:
+            logger.error("frame_char_count: Payload excede máximo de 255 bytes")
+            raise ValueError("Payload excede o tamanho máximo de 255 bytes.")
+
+        header = format(num_bytes, '08b')
+        frame = header + payload_bits
+        logger.debug(f"frame_char_count: saída frame len={len(frame)}")
+        return frame
+
+    def deframe_char_count(self, frame_bits):
+        logger.debug(f"deframe_char_count: entrada frame_bits len={len(frame_bits)}")
+        header_bits = frame_bits[:8]
+        payload_len_in_bytes = int(header_bits, 2)
+        payload_len_in_bits = payload_len_in_bytes * 8
+
+        payload = frame_bits[8 : 8 + payload_len_in_bits]
+        remaining_frame = frame_bits[8 + payload_len_in_bits:]
+        logger.debug(f"deframe_char_count: payload len={len(payload)}, restante len={len(remaining_frame)}")
+        return payload, remaining_frame
+
+    def frame_byte_stuffing(self, payload_bits):
+        logger.debug(f"frame_byte_stuffing: entrada payload_bits len={len(payload_bits)}")
+        padding_needed = len(payload_bits) % 8
+        if padding_needed != 0:
+            num_zeros_to_add = 8 - padding_needed
+            payload_bits += '0' * num_zeros_to_add  # Completa último byte
+            logger.debug(f"frame_byte_stuffing: {num_zeros_to_add} bits adicionados para alinhamento")
+
+        payload_bytes = [int(payload_bits[i:i+8], 2) for i in range(0, len(payload_bits), 8)]
+        logger.debug(f"frame_byte_stuffing: convertido em {len(payload_bytes)} bytes")
+
+        stuffed_payload = []
+        for byte in payload_bytes:
+            if byte in (self.FLAG_BYTE, self.ESC_BYTE):
+                stuffed_payload.append(self.ESC_BYTE)  # Insere escape antes do byte especial
+                logger.debug(f"frame_byte_stuffing: byte {byte:#04x} escapado")
+            stuffed_payload.append(byte)
+
+        final_frame_bytes = [self.FLAG_BYTE] + stuffed_payload + [self.FLAG_BYTE]
+        frame_bits = "".join(format(byte, '08b') for byte in final_frame_bytes)
+        logger.debug(f"frame_byte_stuffing: saída frame_bits len={len(frame_bits)}")
+        return frame_bits
+
+    def deframe_byte_stuffing(self, frame_bits):
+        logger.debug(f"deframe_byte_stuffing: entrada frame_bits len={len(frame_bits)}")
+
+        if len(frame_bits) % 8 != 0:
+            logger.error("deframe_byte_stuffing: comprimento do quadro inválido")
+            return None, "Erro: comprimento inválido (não múltiplo de 8)."
+        if not (frame_bits.startswith(self.FLAG_BIT_PATTERN) and frame_bits.endswith(self.FLAG_BIT_PATTERN)):
+            logger.error("deframe_byte_stuffing: flags ausentes ou inválidas")
+            return None, "Erro: flags ausentes ou inválidas."
+
+        frame_bytes = [int(frame_bits[i:i+8], 2) for i in range(0, len(frame_bits), 8)]
+        payload_with_stuffing = frame_bytes[1:-1]
+        destuffed_payload = []
+        is_escaped = False
+
+        for i, byte in enumerate(payload_with_stuffing):
+            if is_escaped:
+                destuffed_payload.append(byte)
+                is_escaped = False
+                logger.debug(f"deframe_byte_stuffing: byte escapado {byte:#04x} no índice {i}")
+            elif byte == self.ESC_BYTE:
+                is_escaped = True
+                logger.debug(f"deframe_byte_stuffing: ESC encontrado no índice {i}")
+            else:
+                destuffed_payload.append(byte)
+
+        if is_escaped:
+            logger.error("deframe_byte_stuffing: ESC no final do quadro")
+            return None, "Erro: ESC no final do quadro."
+
+        payload_destuffed_bits = "".join(format(byte, '08b') for byte in destuffed_payload)
+        logger.debug(f"deframe_byte_stuffing: payload destuffed len={len(payload_destuffed_bits)} bits")
+        return payload_destuffed_bits, "OK"
+
+    def frame_bit_stuffing(self, payload_bits):
+        stuffed_payload = payload_bits.replace('11111', '111110')
+        return self.FLAG_BIT_PATTERN + stuffed_payload + self.FLAG_BIT_PATTERN
+
+    def deframe_bit_stuffing(self, frame_bits):
+        if not (frame_bits.startswith(self.FLAG_BIT_PATTERN) and frame_bits.endswith(self.FLAG_BIT_PATTERN)):
+            logger.error("deframe_bit_stuffing: flags não encontradas")
+            return None, "Erro: Flags não encontradas."
+
+        stuffed_payload = frame_bits[len(self.FLAG_BIT_PATTERN):-len(self.FLAG_BIT_PATTERN)]
+        destuffed_payload = stuffed_payload.replace('111110', '11111')
+        return destuffed_payload, "OK"
+    
+
+
+
+
+            
+                    </pre>
+
+                    </div>
+                </div>
+                </div>
+
+            </div>
+            </div>
+
+
+            <!-- Slide 11: Detecção e Correção de Erros -->
+            <div id="slide-11" class="slide absolute inset-0 flex-col items-start justify-start p-8 md:p-12 overflow-auto">
+            <div class="slide-content w-full">
+
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+                Detecção e Correção de Erros
+                </h2>
+
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm space-y-10">
+
+                <!-- Paridade Par -->
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-gray-900">Paridade Par</h3>
+                    <p class="text-gray-700 mb-4">
+                    Método simples que adiciona um bit para garantir que o número total de bits ‘1’ seja par. 
+                    Adequado para detecção básica de erros de 1 bit.
+                    </p>
+
+                    <div class="flex justify-center">
+                    <img
+                        src="Imagens TR1/Imagem de Detecção de Erro (Paridade Par).png"
+                        alt="Detecção de Erros por Paridade Par"
+                        class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                        style="max-height: 300px;"
+                    >
+                    </div>
+                </div>
+
+                <!-- CRC-32 -->
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-gray-900">CRC-32 (IEEE 802)</h3>
+                    <p class="text-gray-700 mb-4">
+                    Utiliza um polinômio gerador padrão (IEEE 802). Extremamente robusto contra erros em rajadas.
+                    Muito usado em protocolos reais como Ethernet.
+                    </p>
+
+                    <div class="flex justify-center">
+                    <img
+                        src="Imagens TR1/Imagem de Detecção de Erro (CRC-32).png"
+                        alt="Detecção de Erros com CRC-32"
+                        class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                        style="max-height: 300px;"
+                    >
+                    </div>
+                </div>
+
+                <!-- Hamming (7,4) -->
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-gray-900">Código de Hamming (7,4)</h3>
+                    <p class="text-gray-700 mb-4">
+                    Permite a correção automática de um erro de 1 bit por bloco, além de detectar erros de 2 bits.
+                    Muito eficiente para canais onde erros isolados são comuns.
+                    </p>
+
+                    <div class="flex justify-center">
+                    <img
+                        src="Imagens TR1/Imagem da Correção de Erro — Hamming.png"
+                        alt="Correção de Erros com Código de Hamming"
+                        class="w-full max-w-2xl mx-auto rounded-lg shadow object-contain"
+                        style="max-height: 300px;"
+                    >
+                    </div>
+                </div>
+
+                </div>
+            </div>
+            </div>
+
+            <!-- Slide 12: Código deteccao_erros.py (CENTRALIZADO APENAS NESTE SLIDE) -->
+            <div id="slide-12" class="slide absolute inset-0 flex-col p-8 md:p-12 overflow-auto">
+            <div class="slide-content w-full max-w-5xl mx-auto">
+
+                <!-- título (no topo, centralizado) -->
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">
+                Código deteccao_erros.py
+                </h2>
+
+                <!-- wrapper que centraliza apenas o cartão do código HORIZONTALMENTE -->
+                <div style="width:100%; display:flex; justify-content:center; box-sizing:border-box;">
+                <!-- cartão do código (max-width evita "vazar" a largura) -->
+                <div
+                    style="width:100%; height: 80%; max-width:950px; max-height: 410px; border-radius:10px; box-shadow:0 10px 24px rgba(2,6,23,0.15); 
+                        background: linear-gradient(180deg,#071028 0%, #0b1730 100%); overflow:hidden;"
+                >
+                    <div style="padding:18px;">
+                    <!-- cabeçalho pequeno do cartão -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="color:#93b0ff; font-size:0.9rem; font-weight:600;">deteccao_erros.py</span>
+                        <span style="color:#9fb6ff; font-size:0.75rem;">Resumo</span>
+                    </div>
+
+                    <!-- PRE: forçado a ficar centralizado pela div pai -->
+                    <pre style="margin:0 auto; color:#bcd1ff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+                                font-size:0.95rem; line-height:1.5; max-height:420px; overflow:auto; padding:14px; border-radius:6px;
+                                box-sizing:border-box; background: transparent; width:100%;">
+class ErrorDetector:
+    """
+    Implementa métodos de detecção de erros na Camada de Enlace.
+    Inclui Paridade Par (detecta 1 bit de erro) e CRC-32 (detecta erros em rajada).
+    """
+
+    def __init__(self):
+        # Polinômio CRC-32 padrão IEEE 802.3 (Ethernet), sem o bit mais significativo implícito (x^32)
+        self.CRC32_POLY = 0x104C11DB7
+
+    def add_even_parity(self, bit_chunk):
+        """
+        Aplica paridade par adicionando 1 bit ao final, garantindo quantidade par de bits '1'.
+        Detecta erro simples (1 bit) na recepção.
+        """
+        return bit_chunk + ('1' if bit_chunk.count('1') % 2 != 0 else '0')
+
+    def check_even_parity(self, chunk_with_parity):
+        """
+        Verifica se a paridade par está correta.
+        Retorna True se não houver erro ou False caso detecte erro simples.
+        """
+        return chunk_with_parity.count('1') % 2 == 0
+
+    def _crc_division_engine(self, data_bits_str, poly_bits_str):
+        """
+        Realiza divisão polinomial binária (modulo-2) utilizando XOR.
+        Coração do cálculo/verificação do CRC.
+        """
+        poly = list(map(int, poly_bits_str))
+        data = list(map(int, data_bits_str))
+        n = len(poly)
+
+        # Percorre bits dos dados aplicando XOR com o polinômio quando encontrar bit '1'
+        for i in range(len(data) - n + 1):
+            if data[i] == 1:
+                for j in range(n):
+                    data[i + j] ^= poly[j]
+
+        # Retorna o resto da divisão (CRC) em formato binário
+        remainder = "".join(map(str, data[-(n - 1):]))
+        return remainder
+
+    def generate_crc(self, data_bits):
+        """
+        Gera CRC-32 dos dados binários informados (para transmissão).
+        """
+        poly_bits = bin(self.CRC32_POLY)[2:]  # Polinômio em binário
+        num_poly_bits = len(poly_bits)
+
+        # Adiciona zeros no final para cálculo CRC (padding)
+        padded_data = data_bits + '0' * (num_poly_bits - 1)
+
+        # Calcula resto da divisão polinomial (CRC)
+        remainder = self._crc_division_engine(padded_data, poly_bits)
+
+        # Retorna CRC ajustado para o tamanho correto
+        return remainder.zfill(num_poly_bits - 1)
+
+    def check_crc(self, frame_with_crc):
+        """
+        Verifica integridade do quadro recebido utilizando CRC-32.
+        Retorna 0 se não houver erro; valor diferente indica erro.
+        """
+        poly_bits = bin(self.CRC32_POLY)[2:]
+        remainder_str = self._crc_division_engine(frame_with_crc, poly_bits)
+        return int(remainder_str, 2)
+
+     
+
+
+
+
+        
+                    </pre>
+
+                    </div>
+                </div>
+                </div>
+
+            </div>
+            </div>
+
+            <!-- Slide 13: Código correcao_erros.py (CENTRALIZADO APENAS NESTE SLIDE) -->
+            <div id="slide-13" class="slide absolute inset-0 flex-col p-8 md:p-12 overflow-auto">
+            <div class="slide-content w-full max-w-5xl mx-auto">
+
+                <!-- título (no topo, centralizado) -->
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">
+                Código correcao_erros.py
+                </h2>
+
+                <!-- wrapper que centraliza apenas o cartão do código HORIZONTALMENTE -->
+                <div style="width:100%; display:flex; justify-content:center; box-sizing:border-box;">
+                <!-- cartão do código (max-width evita "vazar" a largura) -->
+                <div
+                    style="width:100%; height: 80%; max-width:950px; max-height: 410px; border-radius:10px; box-shadow:0 10px 24px rgba(2,6,23,0.15); 
+                        background: linear-gradient(180deg,#071028 0%, #0b1730 100%); overflow:hidden;"
+                >
+                    <div style="padding:18px;">
+                    <!-- cabeçalho pequeno do cartão -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="color:#93b0ff; font-size:0.9rem; font-weight:600;">correcao_erros.py</span>
+                        <span style="color:#9fb6ff; font-size:0.75rem;">Resumo</span>
+                    </div>
+
+                    <!-- PRE: forçado a ficar centralizado pela div pai -->
+                    <pre style="margin:0 auto; color:#bcd1ff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+                                font-size:0.95rem; line-height:1.5; max-height:420px; overflow:auto; padding:14px; border-radius:6px;
+                                box-sizing:border-box; background: transparent; width:100%;">
+class ErrorCorrector:
+    def encode_hamming(self, data_bits):
+        encoded_string = ""
+
+        for i in range(0, len(data_bits), 4):
+            chunk = data_bits[i:i+4].ljust(4, '0')  # Preenche blocos incompletos com zeros à direita
+            d = [int(b) for b in chunk]
+
+            # Calcula bits de paridade conforme esquema Hamming(7,4)
+            p1 = (d[0] + d[1] + d[3]) % 2  # Paridade dos bits 1, 3, 5, 7
+            p2 = (d[0] + d[2] + d[3]) % 2  # Paridade dos bits 2, 3, 6, 7
+            p3 = (d[1] + d[2] + d[3]) % 2  # Paridade dos bits 4, 5, 6, 7
+
+            # Bloco codificado: p1 p2 d1 p3 d2 d3 d4
+            encoded_chunk = f"{p1}{p2}{d[0]}{p3}{d[1]}{d[2]}{d[3]}"
+            encoded_string += encoded_chunk
+
+        return encoded_string
+
+    def decode_hamming(self, received_bits):
+        decoded_string = ""
+        corrected_full_frame = ""
+        erros_corrigidos = 0
+
+        for i in range(0, len(received_bits), 7):
+            chunk = received_bits[i:i+7]
+            if len(chunk) < 7:
+                continue  # Descarta bloco incompleto
+
+            bits = [int(b) for b in chunk]
+            p1, p2, d1, p3, d2, d3, d4 = bits
+
+            # Calcula bits de síndrome (c1, c2, c3) para identificar erros
+            c1 = (p1 + d1 + d2 + d4) % 2  # Síndrome relacionada à posição 1
+            c2 = (p2 + d1 + d3 + d4) % 2  # Síndrome relacionada à posição 2
+            c3 = (p3 + d2 + d3 + d4) % 2  # Síndrome relacionada à posição 4
+
+            # Determina posição do erro no bloco (0 se não houver erro)
+            error_pos = c3 * 4 + c2 * 2 + c1
+
+            chunk_list = list(chunk)
+            if error_pos != 0:
+                erros_corrigidos += 1
+                # Corrige o bit invertendo seu valor (posições indexadas em 1)
+                chunk_list[error_pos - 1] = '1' if chunk_list[error_pos - 1] == '0' else '0'
+
+            corrected_chunk_str = "".join(chunk_list)
+            corrected_full_frame += corrected_chunk_str
+
+            # Extrai bits de dados (posições 3, 5, 6, 7)
+            decoded_string += corrected_chunk_str[2] + corrected_chunk_str[4:]
+
+        # Relatório de erros corrigidos
+        report = (f"{erros_corrigidos} erro(s) de bit único corrigido(s)."
+                  if erros_corrigidos > 0 else
+                  "Nenhum erro de bit único detectado.")
+
+        return decoded_string, corrected_full_frame, report
+
+
+
+        
+                    </pre>
+
+                    </div>
+                </div>
+                </div>
+
+            </div>
+            </div>
+
+            <!-- Slide 14: InterfaceGUI -->
+            <div id="slide-14" class="slide absolute inset-0 flex-col items-start justify-start p-8 md:p-12 overflow-auto">
+                <div class="slide-content w-full">
+
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">InterfaceGUI</h2>
+
+                    <!-- Funções Principais -->
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Funções Principais</h3>
+
+                    <ul class="list-disc list-inside text-gray-700 space-y-2 mb-6">
+                        <li>Coleta mensagem e parâmetros (enquadramento, modulação, taxa de erro).</li>
+                        <li>Envia configurações ao Simulador e inicia a transmissão.</li>
+                    </ul>
+
+                    <!-- Visualização -->
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Visualização</h3>
+
+                    <ul class="list-disc list-inside text-gray-700 space-y-2 mb-6">
+                        <li>Exibe sinais: banda-base, modulados e constelação.</li>
+                        <li>Mostra quadro antes/depois do enquadramento.</li>
+                    </ul>
+                    
+                    <!-- GUI do Receptor-->
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">GUI do Receptor</h3>
+
+                    <ul class="list-disc list-inside text-gray-700 space-y-2 mb-6">
+                        <li>Mostra bits recebidos e logs.</li>
+                        <li>Indica detecção/correção (Paridade, CRC-32, Hamming).</li>
+                        <li>Atualiza gráficos automaticamente.</li>
+                    </ul>
+
+                </div>
+            </div>
+
+            <!-- Slide 15: Código gui_transmissor.py (CENTRALIZADO APENAS NESTE SLIDE) -->
+            <div id="slide-15" class="slide absolute inset-0 flex-col p-8 md:p-12 overflow-auto">
+            <div class="slide-content w-full max-w-5xl mx-auto">
+
+                <!-- título (no topo, centralizado) -->
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">
+                Código gui_transmissor.py
+                </h2>
+
+                <!-- wrapper que centraliza apenas o cartão do código HORIZONTALMENTE -->
+                <div style="width:100%; display:flex; justify-content:center; box-sizing:border-box;">
+                <!-- cartão do código (max-width evita "vazar" a largura) -->
+                <div
+                    style="width:100%; height: 80%; max-width:950px; max-height: 410px; border-radius:10px; box-shadow:0 10px 24px rgba(2,6,23,0.15); 
+                        background: linear-gradient(180deg,#071028 0%, #0b1730 100%); overflow:hidden;"
+                >
+                    <div style="padding:18px;">
+                    <!-- cabeçalho pequeno do cartão -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="color:#93b0ff; font-size:0.9rem; font-weight:600;">gui_transmissor.py</span>
+                        <span style="color:#9fb6ff; font-size:0.75rem;">Resumo</span>
+                    </div>
+
+                    <!-- PRE: forçado a ficar centralizado pela div pai -->
+                    <pre style="margin:0 auto; color:#bcd1ff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+                                font-size:0.95rem; line-height:1.5; max-height:420px; overflow:auto; padding:14px; border-radius:6px;
+                                box-sizing:border-box; background: transparent; width:100%;">
+escrever código aqui
+
+
+
+
+            
+                    </pre>
+
+                    </div>
+                </div>
+                </div>
+
+            </div>
+            </div>
+
+            <!-- Slide 16: Código gui_recptor.py (CENTRALIZADO APENAS NESTE SLIDE) -->
+            <div id="slide-16" class="slide absolute inset-0 flex-col p-8 md:p-12 overflow-auto">
+            <div class="slide-content w-full max-w-5xl mx-auto">
+
+                <!-- título (no topo, centralizado) -->
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">
+                Código gui_receptor.py
+                </h2>
+
+                <!-- wrapper que centraliza apenas o cartão do código HORIZONTALMENTE -->
+                <div style="width:100%; display:flex; justify-content:center; box-sizing:border-box;">
+                <!-- cartão do código (max-width evita "vazar" a largura) -->
+                <div
+                    style="width:100%; height: 80%; max-width:950px; max-height: 410px; border-radius:10px; box-shadow:0 10px 24px rgba(2,6,23,0.15); 
+                        background: linear-gradient(180deg,#071028 0%, #0b1730 100%); overflow:hidden;"
+                >
+                    <div style="padding:18px;">
+                    <!-- cabeçalho pequeno do cartão -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="color:#93b0ff; font-size:0.9rem; font-weight:600;">gui_receptor.py</span>
+                        <span style="color:#9fb6ff; font-size:0.75rem;">Resumo</span>
+                    </div>
+
+                    <!-- PRE: forçado a ficar centralizado pela div pai -->
+                    <pre style="margin:0 auto; color:#bcd1ff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+                                font-size:0.95rem; line-height:1.5; max-height:420px; overflow:auto; padding:14px; border-radius:6px;
+                                box-sizing:border-box; background: transparent; width:100%;">
+escrever código aqui
+
+
+
+
+            
+                    </pre>
+
+                    </div>
+                </div>
+                </div>
+
+            </div>
+            </div>
+
+            
+            <!-- Slide 17: Simulador -->
+            <div id="slide-17" class="slide absolute inset-0 flex-col items-start justify-start p-8 md:p-12 overflow-auto">
+                <div class="slide-content w-full">
+
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Simulador</h2>
+
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Função Geral</h3>
+                         <p class="text-gray-700 space-y-2 mb-6">Integra as etapas das camadas Física e de Enlace para transmissão e recepção de dados.</p>
+
+                    <!-- Transmissor -->
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Transmissor</h3>
+
+                    <ul class="list-disc list-inside text-gray-700 space-y-2 mb-6">
+                        <li>Converte mensagem em bits.</li>
+                        <li>Aplica enquadramento e codificação de linha (banda-base).</li>
+                        <li>Realiza a modulação da portadora e envia pelo canal (com ruído/erros configuráveis).</li>
+                    </ul>
+            
+                    <!-- Receptor-->
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Receptor</h3>
+
+                    <ul class="list-disc list-inside text-gray-700 space-y-2 mb-6">
+                        <li>Demodula e reconstrói o sinal digital.</li>
+                        <li>Remove enquadramento e recupera payload.</li>
+                        <li>Detecta/corrige erros (Paridade, CRC-32, Hamming) e entrega resultados à GUI.</li>
+                    </ul>
+
+                </div>
+            </div>
+
+            <!-- Slide 18: Código transmissor.py (CENTRALIZADO APENAS NESTE SLIDE) -->
+            <div id="slide-18" class="slide absolute inset-0 flex-col p-8 md:p-12 overflow-auto">
+            <div class="slide-content w-full max-w-5xl mx-auto">
+
+                <!-- título (no topo, centralizado) -->
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">
+                Código transmissor.py
+                </h2>
+
+                <!-- wrapper que centraliza apenas o cartão do código HORIZONTALMENTE -->
+                <div style="width:100%; display:flex; justify-content:center; box-sizing:border-box;">
+                <!-- cartão do código (max-width evita "vazar" a largura) -->
+                <div
+                    style="width:100%; height: 80%; max-width:950px; max-height: 410px; border-radius:10px; box-shadow:0 10px 24px rgba(2,6,23,0.15); 
+                        background: linear-gradient(180deg,#071028 0%, #0b1730 100%); overflow:hidden;"
+                >
+                    <div style="padding:18px;">
+                    <!-- cabeçalho pequeno do cartão -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="color:#93b0ff; font-size:0.9rem; font-weight:600;">transmissor.py</span>
+                        <span style="color:#9fb6ff; font-size:0.75rem;">Resumo</span>
+                    </div>
+
+                    <!-- PRE: forçado a ficar centralizado pela div pai -->
+                    <pre style="margin:0 auto; color:#bcd1ff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+                                font-size:0.95rem; line-height:1.5; max-height:420px; overflow:auto; padding:14px; border-radius:6px;
+                                box-sizing:border-box; background: transparent; width:100%;">
+escrever código aqui
+
+
+
+
+            
+                    </pre>
+
+                    </div>
+                </div>
+                </div>
+
+            </div>
+            </div>
+
+            <!-- Slide 19: Código receptor.py (CENTRALIZADO APENAS NESTE SLIDE) -->
+            <div id="slide-19" class="slide absolute inset-0 flex-col p-8 md:p-12 overflow-auto">
+            <div class="slide-content w-full max-w-5xl mx-auto">
+
+                <!-- título (no topo, centralizado) -->
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6 text-center">
+                Código receptor.py
+                </h2>
+
+                <!-- wrapper que centraliza apenas o cartão do código HORIZONTALMENTE -->
+                <div style="width:100%; display:flex; justify-content:center; box-sizing:border-box;">
+                <!-- cartão do código (max-width evita "vazar" a largura) -->
+                <div
+                    style="width:100%; height: 80%; max-width:950px; max-height: 410px; border-radius:10px; box-shadow:0 10px 24px rgba(2,6,23,0.15); 
+                        background: linear-gradient(180deg,#071028 0%, #0b1730 100%); overflow:hidden;"
+                >
+                    <div style="padding:18px;">
+                    <!-- cabeçalho pequeno do cartão -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="color:#93b0ff; font-size:0.9rem; font-weight:600;">receptor.py</span>
+                        <span style="color:#9fb6ff; font-size:0.75rem;">Resumo</span>
+                    </div>
+
+                    <!-- PRE: forçado a ficar centralizado pela div pai -->
+                    <pre style="margin:0 auto; color:#bcd1ff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+                                font-size:0.95rem; line-height:1.5; max-height:420px; overflow:auto; padding:14px; border-radius:6px;
+                                box-sizing:border-box; background: transparent; width:100%;">
+escrever código aqui
+
+
+
+
+            
+                    </pre>
+
+                    </div>
+                </div>
+                </div>
+
+            </div>
+            </div>
+
+            <!-- Slide 20: Desafios e Conclusão (Resumo) -->
+            <div id="slide-20" class="slide absolute inset-0 flex-col items-start justify-start p-8 md:p-12 overflow-auto">
+                <div class="slide-content w-full">
+
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Desafios e Conclusão</h2>
+
+                    <!-- Principais Desafios -->
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Principais Desafios</h3>
+
+                    <ul class="list-disc list-inside text-gray-700 space-y-2 mb-6">
+                        <li><strong>Integração:</strong> Unificar enquadramento, modulação, CRC-32 e Hamming em um fluxo consistente.</li>
+                        <li><strong>Precisão bit a bit:</strong> Métodos como CRC-32 e Hamming exigiram manipulação detalhada dos dados.</li>
+                        <li><strong>Visualização:</strong> Ajustar sinais e constelações para garantir estabilidade e clareza.</li>
+                    </ul>
+
+                    <!-- Conclusão -->
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Conclusão</h3>
+
+                    <p class="text-gray-700 leading-relaxed">
+                        O simulador permitiu observar, de forma prática, como modulação, enquadramento e técnicas de detecção/correção de erros afetam a transmissão digital. A visualização gráfica foi essencial para compreender fenômenos como sincronização, constelações e propagação de erros.
+                    </p>
+
+                    <p class="text-gray-700 leading-relaxed mt-4">
+                        Apesar dos desafios de integração e implementação dos algoritmos, o sistema atingiu seus objetivos didáticos e mostrou-se eficaz para estudo e experimentação. Trabalhos futuros incluem adicionar novos modelos de canal, mais modulações e aprimoramentos na interface.
+                    </p>
+
+                </div>
+            </div>
+
+            <!-- Slide 21: Relatório Final -->
+            <div id="slide-21" class="slide absolute inset-0 flex-col items-center justify-center p-8 md:p-12 bg-gradient-to-br from-gray-50 to-white">
+                <div class="slide-content text-center max-w-2xl">
+
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gray-800">
+                        Relatório Final do Projeto
+                    </h2>
+
+                    <p class="text-gray-700 mb-4 text-lg">
+                        O relatório completo em estilo IEEE, contendo toda a análise das camadas
+                        Física e de Enlace, está disponível no link abaixo.
+                    </p>
+
+                    <p class="text-gray-600 text-sm mb-6">
+                        Arquivo carregado no projeto:
+                    </p>
+
+                    <a 
+                        href="/Relatorio/docs/TR1_relatorio.pdf" 
+                        target="_blank"
+                        class="px-6 py-3 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition"
+                    >
+                        📄 Abrir TR1_relatório.pdf
+                    </a>
+
+                    <p class="text-xs text-gray-500 mt-6">
+                        Certifique-se de que o arquivo <strong>TR1_relatório.pdf</strong> está no diretório correto
+                        no seu projeto (pasta <strong>/Relatorio/docs/TR1_relatorio.pdf</strong>).
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+        
+        
+
+        <!-- Navigation Controls -->
+        <div class="bg-gray-200 p-4 flex items-center justify-between border-t border-gray-300">
+            <button id="prevBtn" class="px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg shadow-md hover:bg-gray-700 focus:outline-none disabled:opacity-50">Anterior</button>
+            <div id="slide-counter" class="text-sm font-medium text-gray-600">Slide 1 de 8</div>
+            <button id="nextBtn" class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none">Próximo</button>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const slideCounter = document.getElementById('slide-counter');
+
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        function showSlide(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            slides[index].classList.add('active');
+            slideCounter.textContent = `Slide ${index + 1} de ${totalSlides}`;
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            else if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        showSlide(currentSlide);
+    </script>
+
+</body>
+</html>
